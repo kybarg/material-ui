@@ -1,5 +1,6 @@
 /* eslint-env mocha */
-import React, {PropTypes} from 'react';
+import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import {shallow, mount} from 'enzyme';
 import {assert} from 'chai';
 import keycode from 'keycode';
@@ -9,6 +10,7 @@ import getMuiTheme from '../styles/getMuiTheme';
 import MenuItem from '../MenuItem';
 import Menu from '../Menu/Menu';
 import IconButton from '../IconButton';
+import TestUtils from 'react-dom/test-utils';
 
 describe('<DropDownMenu />', () => {
   const muiTheme = getMuiTheme();
@@ -183,6 +185,57 @@ describe('<DropDownMenu />', () => {
         keyCode: keycode('enter'),
       });
       assert.strictEqual(wrapper.state().open, true, 'it should open the menu');
+    });
+  });
+
+  describe('MultiSelect', () => {
+    let wrapper;
+
+    it('should multi select 2 items after selecting 3 and deselecting 1', () => {
+      class MyComponent1 extends Component {
+        state = {
+          value: null,
+        }
+
+        handleChange = (event, key, value) => {
+          this.setState({value});
+        }
+
+        render() {
+          return (
+            <DropDownMenu
+              multiple={true}
+              value={this.state.value}
+              onChange={this.handleChange}
+            >
+              <MenuItem className="item1" value="item1" primaryText="item 1" />
+              <MenuItem className="item2" value="item2" primaryText="item 2" />
+              <MenuItem className="item3" value="item3" primaryText="item 3" />
+            </DropDownMenu>
+          );
+        }
+      }
+      wrapper = mountWithContext(<MyComponent1 />);
+      wrapper.find('IconButton').simulate('touchTap');   // open
+
+      const item1 = document.getElementsByClassName('item1')[0];
+      assert.ok(item1);
+      const item2 = document.getElementsByClassName('item2')[0];
+      assert.ok(item2);
+      const item3 = document.getElementsByClassName('item3')[0];
+      assert.ok(item3);
+
+      TestUtils.Simulate.touchTap(item1);
+      TestUtils.Simulate.touchTap(item2);
+      TestUtils.Simulate.touchTap(item3);
+      assert.deepEqual(wrapper.state().value, ['item1', 'item2', 'item3']);
+
+      TestUtils.Simulate.touchTap(item1);  // deselect
+      assert.deepEqual(wrapper.state().value, ['item2', 'item3']);
+    });
+
+    afterEach(function() {
+      if (wrapper) wrapper.unmount();
     });
   });
 });

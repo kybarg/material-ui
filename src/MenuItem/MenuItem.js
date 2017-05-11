@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import shallowEqual from 'recompose/shallowEqual';
 import Popover from '../Popover/Popover';
@@ -20,7 +21,7 @@ function getStyles(props, context) {
   const styles = {
     root: {
       color: props.disabled ? disabledColor : textColor,
-      cursor: props.disabled ? 'not-allowed' : 'pointer',
+      cursor: props.disabled ? 'default' : 'pointer',
       minHeight: props.desktop ? '32px' : '48px',
       lineHeight: props.desktop ? '32px' : '48px',
       fontSize: props.desktop ? 15 : 16,
@@ -306,6 +307,7 @@ class MenuItem extends Component {
         leftIcon={leftIconElement}
         ref="listItem"
         rightIcon={rightIconElement}
+        role="menuitem"
         style={mergedRootStyles}
       >
         {children}
